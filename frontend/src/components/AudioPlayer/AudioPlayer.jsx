@@ -26,7 +26,7 @@ export default function AudioPlayer({ title, src }) {
     };
   }, []);
 
-  // Fonction pour basculer play/pause
+  // play/pause
   const togglePlay = () => {
     const audio = audioRef.current;
     if (isPlaying) {
@@ -44,7 +44,7 @@ export default function AudioPlayer({ title, src }) {
     audioRef.current.volume = newVolume;
   };
 
-  // Gérer la position du curseur de la durée
+  // barre de progression du temps
   const handleTimeChange = (e) => {
     const newTime = e.target.value;
     setCurrentTime(newTime);

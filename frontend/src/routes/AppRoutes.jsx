@@ -1,17 +1,15 @@
-import { BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
-import Home from "../pages/login";
-
-
-
-
-
-
+import Login from "../pages/Login/login";
+import RegisterForm from "../components/RegisterForm/RegisterForm";
 
 const AppRoutes = () => (
   <Router>
     <MainLayout>
-      <Home />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<RegisterForm/>} />
+      </Routes>
     </MainLayout>
   </Router>
 );

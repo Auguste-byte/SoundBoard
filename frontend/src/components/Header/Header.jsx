@@ -5,15 +5,8 @@ const Header = () => {
     
     return (
     <header className="header">
-        <div className="user">
-        bonjours
-        </div>
-        <div style={{ padding: '2rem' }}>
-      <AudioPlayer
-        title="Ma super musique"
-        src="/assets/test.mp3"
-      />
-    </div>
+      <img src="../../../assets/logo.avif" alt="logo" className="logo"/>
+      <div className="appliName">SOUNDBOARD</div>
     </header>
 )};
 
