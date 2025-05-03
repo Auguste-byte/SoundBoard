@@ -3,6 +3,7 @@ import MainLayout from "../layout/MainLayout";
 import Login from "../pages/Login/login";
 import RegisterForm from "../components/RegisterForm/RegisterForm";
 
+
 const AppRoutes = () => (
   <Router>
     <MainLayout>
