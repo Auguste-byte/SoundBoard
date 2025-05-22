@@ -1,19 +1,58 @@
-import React from 'react';
-import AudioPlayer from '../AudioPlayer/AudioPlayer';
+import React, { useState } from "react";
+import AudioPlayer from "../AudioPlayer/AudioPlayer"; // ajuste le chemin si besoin
 
-const PostItem = ({ title, description, date, children }) => {
+const Post = ({ postId, author, date, title, description, audioSrc }) => {
+  const [likes, setLikes] = useState(0); // compteur local (tu peux le remplacer par une prop si tu veux charger le nombre initial)
+
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/posts/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ post_id: postId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setLikes((prev) => prev + 1);
+      } else {
+        console.error("Erreur Like:", data.error || data.message);
+      }
+    } catch (err) {
+      console.error("Erreur réseau Like", err);
+    }
+  };
+
+  const handleComment = () => {
+    // futur : ouvrir un champ de commentaire
+    console.log("💬 Commenter ce post", postId);
+  };
+
   return (
-    <div className="post-item" style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
-      <h2 style={{ margin: '0 0 0.5rem' }}>{title}</h2>
-      <p style={{ margin: '0 0 0.5rem' }}>{description}</p>
-      <small style={{ color: '#777' }}>{new Date(date).toLocaleDateString()}</small>
-
-      <div className="post-extra" style={{ marginTop: '1rem' }}>
-        {children}
+    <div className="post">
+      <div className="post-header">
+        <p>
+          <strong>{author}</strong> – {new Date(date).toLocaleDateString()}
+        </p>
       </div>
-      <AudioPlayer />
+
+      <div className="post-body">
+        <h3>{title}</h3>
+        {description && <p>{description}</p>}
+        <AudioPlayer src={audioSrc} />
+      </div>
+
+      <div className="post-actions">
+        <button onClick={handleLike}>👍 {likes}</button>
+        <button onClick={handleComment}>💬 Commenter</button>
+      </div>
     </div>
   );
 };
 
-export default PostItem;
+export default Post;

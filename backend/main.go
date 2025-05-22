@@ -7,9 +7,14 @@ import (
 	"path/filepath"
 
 	// Assure-toi d'importer les bons packages
+	auth "musique/auth"
 	db "musique/database"
+	lk "musique/like"
 	mw "musique/middleware"
-	su "musique/signup"
+	pt "musique/post"
+	su "musique/registration"
+	st "musique/style"
+	ws "musique/ws"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -40,24 +45,37 @@ func main() {
 
 	r.PathPrefix("/assets/").Handler(fs)
 
-	// Ajouter la route d'inscription à l'API
-	r.HandleFunc("/api/signup", su.SignupHandler).Methods("POST")
+	r.Handle("/api/registration", mw.RateLimiter(http.HandlerFunc(su.RegistrationHandler))).Methods("POST")
+	r.Handle("/api/login", mw.RateLimiter(http.HandlerFunc(auth.LoginHandler))).Methods("POST")
+	r.Handle("/api/profile", mw.AuthMiddleware(http.HandlerFunc(auth.GetProfileHandler))).Methods("GET")
+	r.Handle("/api/profile", mw.AuthMiddleware(http.HandlerFunc(auth.UpdateProfileHandler))).Methods("PUT")
+	r.HandleFunc("/api/posts", pt.GetAllPostsHandler).Methods("GET")
+	r.Handle("/api/posts", mw.AuthMiddleware(http.HandlerFunc(pt.CreatePostHandler))).Methods("POST")
+	r.HandleFunc("/api/style", st.GetStylesHandler).Methods("GET")
+	r.Handle("/api/posts/like", mw.AuthMiddleware(http.HandlerFunc(lk.LikePostHandler))).Methods("POST")
+
+	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
+
+	go ws.StartBroadcast()
+	r.HandleFunc("/ws", ws.HandleConnections)
 
 	// Route catch-all pour servir React (pour le routing côté client)
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedPath := filepath.Join(staticDir, r.URL.Path)
 
-		// Si c'est un fichier existant (ex: .js, .css), on le sert
+		// Si le fichier demandé existe, on le sert
 		if stat, err := os.Stat(requestedPath); err == nil && !stat.IsDir() && filepath.Ext(r.URL.Path) != "" {
 			http.ServeFile(w, r, requestedPath)
 			return
 		}
 
-		// Sinon, on sert index.html pour permettre le routing React
+		// Sinon on sert index.html (React prendra en charge le routing)
 		http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 	})
 
-	// Lancer le serveur HTTP sur le port 3000
-	log.Println("✅ Serveur Go en ligne sur http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", r))
+	// Lancer le serveur HTTP sur le port 8080
+	log.Println("✅ Serveur Go en ligne sur http://localhost:8080")
+	//log.Fatal(http.ListenAndServeTLS(":8080", "server.crt", "server.key", r))
+	log.Fatal(http.ListenAndServe(":8080", r)) // HTTP simple
+
 }

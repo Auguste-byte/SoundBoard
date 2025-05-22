@@ -1,7 +1,7 @@
 import RegisterForm from "../../components/RegisterForm/RegisterForm";
 
 
-import "./login.css";
+import "./register.css";
 
 const Register = () => {
   return (

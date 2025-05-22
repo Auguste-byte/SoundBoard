@@ -75,6 +75,15 @@ CREATE TABLE IF NOT EXISTS "style" (
 	name TEXT NOT NULL UNIQUE
 );
 
+INSERT INTO "style" (name) VALUES
+  ('Hip-Hop'),
+  ('Jazz'),
+  ('Rock'),
+  ('Électro'),
+  ('Classique'),
+  ('Pop')
+ON CONFLICT (name) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS "post" (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	user_id UUID NOT NULL REFERENCES "users" (id) ON DELETE CASCADE,

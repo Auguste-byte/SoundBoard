@@ -1,7 +1,4 @@
 import LoginForm from "../../components/LoginForm/LoginForm";
-import PostItem from "../../components/Post/Post";
-import RegisterForm from "../../components/RegisterForm/RegisterForm";
-import UserProfile from "../../components/UserProfile/UserProfile";
 import { Link } from "react-router-dom";
 
 import "./login.css";

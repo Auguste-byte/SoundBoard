@@ -1,43 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterForm() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
 
+    // Redirige automatiquement si déjà connecté
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/home');
+        }
+    }, [navigate]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
 
-        // Validation de base
         if (password !== confirmPassword) {
             setError('Les mots de passe ne correspondent pas');
             return;
         }
 
-        // Envoi des données au backend (Go)
         try {
-            const response = await fetch('http://localhost:3000/api/singup', {
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    email,
-                    username,
-                    password,
-                }),
+                body: JSON.stringify({ email, username, password }),
             });
 
             const data = await response.json();
+            console.log('Réponse backend :', data);
 
-            if (response.ok) {
-                alert('Inscription réussie!');
+            if (response.ok && data.token) {
+                // Stocke le token si présent
+                localStorage.setItem('token', data.token);
+                navigate('/home');
             } else {
                 setError(data.message || 'Une erreur est survenue');
             }
         } catch (error) {
+            console.error('Erreur réseau :', error);
             setError('Erreur de connexion au serveur');
         }
     };

@@ -1,12 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../api/auth";
 import { validateLogin } from "../../utils/validation";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
+
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // 🔁 Redirige vers /home si un token est déjà présent
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/home");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,8 +32,14 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const user = await loginUser(identifier, password);
-      console.log("Connexion réussie :", user);
-      // Tu peux rediriger ici avec useNavigate ou autre
+
+      // ✅ Vérifie si un token est présent dans la réponse
+      if (user && user.token) {
+        localStorage.setItem("token", user.token);
+        navigate("/home");
+      } else {
+        setErrorMsg("Token manquant dans la réponse du serveur.");
+      }
     } catch (err) {
       setErrorMsg(
         err.response?.data?.error || "Erreur serveur ou identifiants invalides."
@@ -63,7 +80,6 @@ export default function LoginForm() {
           />
         </div>
 
-        {/* Affichage du message d'erreur */}
         {errorMsg && (
           <p className="error-message" style={{ color: "red", marginTop: "10px" }}>
             {errorMsg}

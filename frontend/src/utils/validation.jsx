@@ -4,7 +4,7 @@ export const validateLogin = (identifier, password) => {
       return "Veuillez saisir un email ou pseudo valide.";
     }
   
-    if (!password || password.length < 6) {
+    if (!password || password.length < 2) {
       return "Mot de passe trop court (min. 6 caractères).";
     }
   
