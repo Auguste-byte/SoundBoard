@@ -12,5 +12,5 @@ export const loginUser = async (identifier, password) => {
     throw new Error(errorData.error || "Erreur serveur");
   }
 
-  return await response.json(); // Données utilisateur par exemple
+  return await response.json(); 
 };
